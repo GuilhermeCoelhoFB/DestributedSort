@@ -1,10 +1,12 @@
 package distributedsort;
 
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.ServerSocket;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -15,20 +17,21 @@ public class Servidor {
                 
                 System.out.println("Aguardando conexões...");
                 Socket socket = server.accept();
-
+                System.out.println("Conexão estabelecida com " + socket.getInetAddress());
+                DataInputStream  datareader = new DataInputStream(socket.getInputStream());
                 ObjectInputStream objreader = new ObjectInputStream(socket.getInputStream());
                 ObjectOutputStream  objwriter = new ObjectOutputStream(socket.getOutputStream());
 
-                
-                List<Integer> lista = null;
-                List<List<Integer>> listas = null;
-                
-                while((lista = (List<Integer>)objreader.readObject()) != null){
+               
+                List<Integer> lista;
+                List<List<Integer>> listas =  new ArrayList<>();
+                while(datareader.readInt() == 1){
+                    lista = (List<Integer>) objreader.readObject();
                     Collections.sort(lista);
                     listas.add(lista);
                 }
-                objwriter.writeObject(listas);
                 
+                objwriter.writeObject(listas);
                 socket.close();
                 server.close();
         }
